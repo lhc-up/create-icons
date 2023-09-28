@@ -16,7 +16,9 @@
     "keywords": [
         "ico",
         "icns",
-        "electron"
+        "Electron",
+        "favicon.ico",
+        "png"
     ],
     "author": "",
     "license": "ISC",

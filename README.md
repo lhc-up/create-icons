@@ -1,6 +1,6 @@
 # create-icons
 
-Mac系统下制作icns图片，需要提供1024x1024的png图片
+根据png图片制作Electorn客户端使用的.ico(windows),.icns(mac)格式的图标以及web端使用的favicon.ico，推荐使用1024x1024的png图片，只需一张图片，剩下的由程序搞定
 
 ## install
 
@@ -10,21 +10,17 @@ Mac系统下制作icns图片，需要提供1024x1024的png图片
 ## Quick Start
 
 ```js
-const { createIcns } = require('create-icns-mac');
-createIcns(imgPath).then(data => {
-    console.log(data);
+const { createIcons } = require('./index.js');
+createIcons('1024.png', 'outputDir').then(res => {
+    console.log(res);
 }).catch(err => {
     console.log(err);
 });
-// or
-(async () => {
-    const data = await createIcns(imgPath);
-})();
 ```
 
 ## Notes  
 
-**icns图片制作步骤如下：**  
+**Mac环境，使用命令行工具制作icns图片，步骤如下：**  
 
 - 生成临时文件夹：`folder.iconset`，文件夹名称随便都可以，但必须使用`.iconset`后缀
 - 使用mac图片工具sips，根据原始图片，制作不同尺寸的图片备用，全部尺寸为：`[16, 32, 128, 256, 512]`，每个尺寸除自身外还需要再额外制作一个2倍图，命令为
