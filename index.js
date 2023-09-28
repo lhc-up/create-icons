@@ -18,15 +18,15 @@ const path = require('path');
 async function createIcons(png1024, outputDir, options = {
     report: true,
     ico: {
-        name: 'app',
+        name: 'client-windows',
         sizes: [16, 24, 32, 48, 64, 128, 256]
     },
     icns: {
-        name: 'app',
+        name: 'client-mac',
         sizes: [16, 32, 64, 128, 256, 512, 1024]
     },
     favicon: {
-        name: 'favicon-',
+        name: 'web-favicon-',
         pngSizes: [32, 57, 72, 96, 120, 128, 144, 152, 195, 228],
         icoSizes: [16, 24, 32, 48, 64]
     }
