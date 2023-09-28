@@ -1,64 +1,34 @@
-const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
-const fs = require('fs');
+const icongen = require('icon-gen');
 
-// sips -z 16 16 /Users/luohao/Desktop/icns/logo.png --out /Users/luohao/Desktop/icns/logo_16x16.png
-// 1024x1024 png
-function createIcns(png1024) {
-    return new Promise(async (resolve, reject) => {
-        if (os.platform() !== 'darwin') return reject('Mac Only -_-!!!');
-        try {
-            if (!fs.existsSync(png1024)) return reject(`${png1024}图片不存在！`);
-        } catch(err) {
-            return reject(err);
-        }
-        const sizeArr = [16, 32, 128, 256, 512];
-        const iconsetFolder = path.join(path.dirname(png1024), 'icns_temp.iconset');
-        try {
-            fs.mkdirSync(iconsetFolder);
-        } catch(err) {console.log(err)}
-        
-        for (let i = 0; i < sizeArr.length; i++) {
-            const size = sizeArr[i];
-            try {
-                await spawnAsync(`sips -z ${size} ${size} ${png1024} --out ${path.join(iconsetFolder, `icon_${size}x${size}.png`)}`);
-                await spawnAsync(`sips -z ${size * 2} ${size * 2} ${png1024} --out ${path.join(iconsetFolder, `icon_${size}x${size}@2x.png`)}`);
-            } catch(err) {
-                return reject(err);
-            }
-        }
-        // iconutil -c icns /Users/luohao/Desktop/icns/logo.iconset -o /Users/luohao/Desktop/icns/aaa.icns
-        const folder = path.dirname(png1024);
-        const name = path.basename(png1024, path.extname(png1024));
-        const output = path.join(folder, `${name}.icns`);
-        const cmd = `iconutil -c icns ${iconsetFolder} -o ${output}`;
-        spawnAsync(cmd).then(() => {
-            try {
-                fs.rmdirSync(iconsetFolder, { recursive: true });
-            } catch(err) { console.log(err) }
-            resolve(output);
-        }).catch(err => {
-            reject(err);
-        });
-    });
-}
-function spawnAsync(cmd) {
-    return new Promise((resolve, reject) => {
-        const cmdArr = cmd.split(' ');
-        const cp = spawn(cmdArr.shift(), cmdArr);
-        const stdout = [], stderr = [];
-
-        cp.on('error', err => reject(err));
-        cp.stderr.on('data', data => stderr.push(data));
-        cp.stdout.on('data', data => stdout.push(data));
-
-        cp.on('close', code => {
-            const info = Buffer.concat([...stdout, ...stderr]).toString();
-            return code ? reject(info) : resolve(info);
-        });
-    });
-}
-module.exports = {
-    createIcns
+/**
+ * ico:需提供16x16,24x24,32x32,48x48,64x64,128x128,256x256大小的图片
+ * icns:需提供16x16,32x32,64x64,128x128,256x256,512x512,1024x1024大小的图片
+ * favicon.ico:需提供16x16,24x24,32x32,48x48,64x64大小的图片
+ * 文件均以大小命名，如：24.png
+ * 
+ * 不想生成某种格式的图标，把该格式的配置传入空对象即可，不传则使用默认配置
+ * 
+ * @param {*} pngFolder 
+ * @param {*} outputFolder 
+ * @param {*} options 
+ */
+exports.createIcons = function createIcons(pngFolder, outputFolder, options = {
+    report: true,
+    ico: {
+        name: 'app',
+        sizes: [16, 24, 32, 48, 64, 128, 256]
+    },
+    icns: {
+        name: 'app',
+        sizes: [16, 32, 64, 128, 256, 512, 1024]
+    },
+    favicon: {
+        name: 'favicon-',
+        // pngSizes: [32, 57, 72, 96, 120, 128, 144, 152, 195, 228],
+        pngSizes: [32, 128],
+        icoSizes: [16, 24, 32, 48, 64]
+    }
+}) {
+    console.log(pngFolder);
+    return icongen(pngFolder, outputFolder, options);
 }

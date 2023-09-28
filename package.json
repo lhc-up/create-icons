@@ -1,0 +1,30 @@
+{
+    "name": "create-icons",
+    "version": "1.0.0",
+    "description": "制作Electron客户端相关图标，网站favicon.ico",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "engines": {
+        "node": "14.19.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/luohao8023/create-icons.git"
+    },
+    "keywords": [
+        "ico",
+        "icns",
+        "electron"
+    ],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/luohao8023/create-icons/issues"
+    },
+    "homepage": "https://github.com/luohao8023/create-icons#readme",
+    "dependencies": {
+        "icon-gen": "^4.0.0"
+    }
+}
