@@ -11,7 +11,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/luohao8023/create-icons.git"
+        "url": "git+https://github.com/lhc-up/create-icons.git"
     },
     "keywords": [
         "ico",
@@ -23,10 +23,11 @@
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/luohao8023/create-icons/issues"
+        "url": "https://github.com/lhc-up/create-icons/issues"
     },
-    "homepage": "https://github.com/luohao8023/create-icons#readme",
+    "homepage": "https://github.com/lhc-up/create-icons#readme",
     "dependencies": {
+        "fs-extra": "^11.2.0",
         "icon-gen": "^4.0.0"
     }
 }

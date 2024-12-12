@@ -1,6 +1,7 @@
 const icongen = require('icon-gen');
 const sharp = require('sharp');
 const fs = require('fs');
+const fse = require('fs-extra');
 const path = require('path');
 
 /**
@@ -31,8 +32,21 @@ async function createIcons(png1024, outputDir, options = {
         icoSizes: [16, 24, 32, 48, 64]
     }
 }) {
+    fse.emptyDirSync(outputDir);
     const pngDir = await createAllSizeImages(png1024, path.join(__dirname, 'files/png'));
+    await collectLinuxIcons(pngDir);
     return icongen(pngDir, outputDir, options);
+}
+
+async function collectLinuxIcons(pngFolder) {
+    const outputDir = path.join(__dirname, 'files', 'output', 'linux');
+    fse.ensureDirSync(outputDir);
+    const sizeList = [16, 24, 32, 48, 64, 128, 256, 512, 1024];
+    for (const size of sizeList) {
+        const png = path.join(pngFolder, `${size}.png`);
+        const output = path.join(outputDir, `${size}x${size}.png`);
+        fs.copyFileSync(png, output);
+    }
 }
 
 /**
@@ -41,7 +55,11 @@ async function createIcons(png1024, outputDir, options = {
  * @returns 
  */
 async function createAllSizeImages(png1024, outputDir) {
-    if (!outputDir) outputDir = path.dirname(png1024);
+    if (!outputDir) {
+        outputDir = path.dirname(png1024);
+    } else {
+        fse.ensureDirSync(outputDir);
+    }
     const allSize = [16, 24, 32, 48, 57, 64, 72, 96, 120, 128, 144, 152, 195, 228, 256, 512, 1024];
     const promiseList = allSize.map(size => {
         return sharp(png1024).resize(size, size).png().toBuffer();
