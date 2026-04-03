@@ -27,7 +27,7 @@ async function createIcons(pngPath, output, options={}) {
     fse.emptyDirSync(output);
     // see https://www.npmjs.com/package/icon-gen
     const defaultOptions = {
-        report: true,
+        report: false,
         ico: {
             name: 'icon',
             sizes: [256]
@@ -45,6 +45,7 @@ async function createIcons(pngPath, output, options={}) {
     const opt = merge({}, defaultOptions, options);
     const pngDir = await createAllSizeImages(pngPath, path.join(output, 'tempPngs'));
     await collectLinuxIcons(pngDir);
+    fse.copyFileSync(pngPath, path.join(output, 'icon.png'));
     return icongen(pngDir, output, opt);
 }
 
