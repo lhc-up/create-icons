@@ -1,8 +1,14 @@
 const icongen = require('icon-gen');
 const sharp = require('sharp');
-const fs = require('fs');
 const fse = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
+const merge = require('merge');
+
+function getOutputDir(output) {
+    const _out = output || path.join(__dirname, 'output');
+    fse.ensureDirSync(_out);
+    return _out;
+}
 
 /**
  * ico:需提供16x16,24x24,32x32,48x48,64x64,128x128,256x256大小的图片
@@ -12,63 +18,62 @@ const path = require('path');
  * 
  * 不想生成某种格式的图标，把该格式的配置传入空对象即可，不传则使用默认配置
  * 
- * @param {*} pngDir 
- * @param {*} outputDir 
- * @param {*} options 
+ * @param {String} pngPath 
+ * @param {String} output 
+ * @param {Object} options 
  */
-async function createIcons(png1024, outputDir, options = {
-    report: true,
-    ico: {
-        name: 'client-windows',
-        sizes: [16, 24, 32, 48, 64, 128, 256]
-    },
-    icns: {
-        name: 'client-mac',
-        sizes: [16, 32, 64, 128, 256, 512, 1024]
-    },
-    favicon: {
-        name: 'web-favicon-',
-        pngSizes: [32, 57, 72, 96, 120, 128, 144, 152, 195, 228],
-        icoSizes: [16, 24, 32, 48, 64]
+async function createIcons(pngPath, output, options={}) {
+    output = getOutputDir(output);
+    fse.emptyDirSync(output);
+    // see https://www.npmjs.com/package/icon-gen
+    const defaultOptions = {
+        report: true,
+        ico: {
+            name: 'icon',
+            sizes: [256]
+        },
+        icns: {
+            name: 'icon',
+            sizes: [1024]
+        },
+        favicon: {
+            name: 'favicon',
+            pngSizes: [32],
+            icoSizes: [32]
+        }
     }
-}) {
-    fse.emptyDirSync(outputDir);
-    const pngDir = await createAllSizeImages(png1024, path.join(__dirname, 'files/png'));
+    const opt = merge({}, defaultOptions, options);
+    const pngDir = await createAllSizeImages(pngPath, path.join(output, 'tempPngs'));
     await collectLinuxIcons(pngDir);
-    return icongen(pngDir, outputDir, options);
+    return icongen(pngDir, output, opt);
 }
 
-async function collectLinuxIcons(pngFolder) {
-    const outputDir = path.join(__dirname, 'files', 'output', 'linux');
-    fse.ensureDirSync(outputDir);
-    const sizeList = [16, 24, 32, 48, 64, 128, 256, 512, 1024];
+async function collectLinuxIcons(pngDir, output) {
+    output = getOutputDir(output);
+    const sizeList = [16, 24, 32, 48, 64, 96, 128, 256, 512, 1024];
     for (const size of sizeList) {
-        const png = path.join(pngFolder, `${size}.png`);
-        const output = path.join(outputDir, `${size}x${size}.png`);
-        fs.copyFileSync(png, output);
+        const png = path.join(pngDir, `${size}.png`);
+        fse.copyFileSync(png, path.join(output, `${size}x${size}.png`));
     }
 }
 
 /**
  * 根据给定图片，生成各尺寸图片，推荐1024x1024
- * @param {*} png1024 
+ * @param {String} pngPath 
  * @returns 
  */
-async function createAllSizeImages(png1024, outputDir) {
-    if (!outputDir) {
-        outputDir = path.dirname(png1024);
-    } else {
-        fse.ensureDirSync(outputDir);
-    }
+async function createAllSizeImages(pngPath, output) {
+    output = getOutputDir(output);
+    fse.emptyDirSync(output);
     const allSize = [16, 24, 32, 48, 57, 64, 72, 96, 120, 128, 144, 152, 195, 228, 256, 512, 1024];
     const promiseList = allSize.map(size => {
-        return sharp(png1024).resize(size, size).png().toBuffer();
+        return sharp(pngPath).resize(size, size).png().toBuffer();
     });
     const bufferList = await Promise.all(promiseList);
     for (const [index, buf] of bufferList.entries()) {
-        fs.writeFileSync(path.join(outputDir, `${allSize[index]}.png`), buf);
+        fse.writeFileSync(path.join(output, `${allSize[index]}.png`), buf);
     }
-    return outputDir;
+    return output;
 }
 
 exports.createIcons = createIcons;

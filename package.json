@@ -28,6 +28,7 @@
     "homepage": "https://github.com/lhc-up/create-icons#readme",
     "dependencies": {
         "fs-extra": "^11.2.0",
-        "icon-gen": "^4.0.0"
+        "icon-gen": "^4.0.0",
+        "merge": "^2.1.1"
     }
 }
